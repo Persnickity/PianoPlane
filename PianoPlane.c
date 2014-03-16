@@ -7,7 +7,7 @@
 #define BOX_WIDTH 30
 #define BOX_HEIGHT 30
 
-
+// Main
 int main(int argc, char* args[])
 {
    // Initialize the SDL
