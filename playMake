@@ -1,0 +1,33 @@
+test:
+	make build;
+	make run;
+
+build:
+	cc -c `sdl-config --cflags` demo.c 
+	cc -o demo demo.o `sdl-config --libs` -lSDL_mixer
+#	gcc -g -lm -I"./downloads/kiss_fft130" -I"./downloads/kiss_fft130/tools" -c test_real.c ;
+#	gcc test_real.o -o test_real;
+	cc -c `sdl-config --cflags` playmus.c
+	cc -o playmus playmus.o `sdl-config --libs` -lSDL_mixer
+	cc -c `sdl-config --cflags` play.c
+	cc -o play play.o `sdl-config --libs` -lSDL_mixer
+	cc -c `sdl-config --cflags` test1.c
+	cc -o test1 test1.o `sdl-config --libs` -lSDL_mixer -lSDL
+
+run:
+#	./demo;
+#	./test_real 10000;
+#	./playmus
+#	./test1 rock.mid
+
+clean:
+	-rm demo.o;
+	-rm demo;
+	-rm test_real.o;
+	-rm test_real;
+	-rm playmus.o
+	-rm playmus;
+	-rm play.o;
+	-rm play;
+	-rm test1.o;
+	-rm test1;
