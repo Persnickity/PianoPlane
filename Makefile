@@ -1,6 +1,6 @@
 test:
 	make build;
-	./PianoPlane ./selfie.mp3;
+	./PianoPlane $(song);
 
 build:
 	gcc -I"/usr/include/SDL" -c PianoPlane.c;

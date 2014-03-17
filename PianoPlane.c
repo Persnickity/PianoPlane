@@ -120,16 +120,20 @@ int createNewBar(gameRect *array, int y, int value )
 		y = 400;
 	if( y < 150 )
 		y = 150; 
+	if( value > 20 )
+		value = 20;
+	if( value < -20 )
+		value = -20;
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 0)
 		{
 			if( j == 0)
 			{
-				array[i] = createGameRect( 630.0f, (float)y + value, 10, SCREEN_HEIGHT - (y + value), rand() % 255, rand() % 255, rand() % 255);
+				array[i] = createGameRect( 630.0f, (float)y + value, 15, SCREEN_HEIGHT - (y + value), rand() % 255, rand() % 255, rand() % 255);
 				j++;
 			} else {
-				array[i] = createGameRect( 630.0f, 0.0f, 10, y + value - 100, rand() % 255, rand() % 255, rand() % 255);
+				array[i] = createGameRect( 630.0f, 0.0f, 15, y + value - 125, rand() % 255, rand() % 255, rand() % 255);
 				return y + value;
 			}
 		}	
@@ -179,9 +183,9 @@ int getheight()
 {
 	Sint16 *buf;
 	buf = stream[which];
-	int height = 0;
+	int height = 1;
 	int x;//position
-	int c;//count
+	int c = 1;//count
 	for(x=0;x<MUSBUFFER;x++)
 	{
 		if (buf[x] > 0)
@@ -232,7 +236,7 @@ void startMusic(char* song)
 	music = Mix_LoadMUS(song);
 
 	// Play  
-	Mix_FadeInMusic(music, -1, 1000);
+	Mix_FadeInMusic(music, 1, 1000);
 	//while ( Mix_PlayingMusic() || Mix_PausedMusic() ) 
 	//{
 	//	SDL_Delay(100);
@@ -305,11 +309,18 @@ int main(int argc, char* argv[])
 				break;
 			}
 		}
+		
+		// Is the song over?
+		if( !(Mix_PlayingMusic()) )
+		{
+			// Quit the program
+			break;
+		}		
 
 		// Create new bar
-		if(counter > 15.0f)
+		if(counter > 20.0f)
 		{
-			if( ( yPrev = createNewBar(rects, yPrev, getheight() ) ) == 0)
+			if( ( yPrev = createNewBar(rects, yPrev, ((getheight() / -300) + 15) ) ) == 0)
 			{
 				fprintf(stderr, "Create New Bars Error\n");
 				break;
