@@ -320,10 +320,9 @@ int main(int argc, char* argv[])
 	int yPrev = 240;
 	
 	// Check command line for correct input
-	if ( (argc <= 2) || (argc >= 3) )
+	if ( (argc < 2) || (argc >= 3) )
 	{
-		printf("Please provide one music file\n\n
-			Avaiable music types: .mp3, .ogg, .min");
+		printf("Please provide one music file\n\nAvaiable music types: .mp3, .ogg, .min\n");
 	}
 
 	// Start The Song
