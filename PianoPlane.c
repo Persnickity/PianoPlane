@@ -196,8 +196,11 @@ void initArrayOfBars(gameRect *array)
 // Postmix updates audio stream buffer
 void postmix(void *udata, Uint8 *_stream, int _len)
 {
+	//len = audio buffer length
 	len=_len;
+	//update audio stream buffer
         memcpy(stream[(which+1)%2],_stream,len);
+	//which = which stream i.e. stereo's two streams
 	which = (which + 1) % 2;
 }
 
@@ -207,8 +210,8 @@ int getheight()
 {
 	Sint16 *buf;
 	buf = stream[which];
-	int height = 0;
-	int c = 0;
+	int height = 0;// "height of bars"
+	int c = 0;//count
 	int x;
 
 	for( x = 0; x < MUSBUFFER; x++ )
@@ -222,9 +225,10 @@ int getheight()
 	
 	if( (height == 0) || (c == 0) )
 	{
+		//enter here if buffer not filling correctly
 		return 1;
 	}
-	return ( height / c );	
+	return ( height / c );//average sound wave peaks per buffer instance	
 }
 
 
@@ -266,10 +270,6 @@ void startMusic(char* song)
 
 	// Play  
 	Mix_FadeInMusic(music, 1, 1000);
-	//while ( Mix_PlayingMusic() || Mix_PausedMusic() ) 
-	//{
-	//	SDL_Delay(100);
-	//}
 
 }
 
@@ -318,6 +318,13 @@ int main(int argc, char* argv[])
 
 	// Previously created bars y location. Start location at 240
 	int yPrev = 240;
+	
+	// Check command line for correct input
+	if ( (argc <= 2) || (argc >= 3) )
+	{
+		printf("Please provide one music file\n\n
+			Avaiable music types: .mp3, .ogg, .min");
+	}
 
 	// Start The Song
 	startMusic(argv[1]);
