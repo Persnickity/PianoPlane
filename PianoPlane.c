@@ -10,6 +10,7 @@
 
 typedef struct
 {
+	int exist;
 	float x, y;
 	int red, green, blue;
 	SDL_Rect rect;
@@ -20,6 +21,7 @@ typedef struct
 gameRect createGameRect(float x, float y, int width, int height, int red, int green, int blue)
 {
 	gameRect object;
+	object.exist = 1;
 	object.x = x;
 	object.y = y;
 	object.rect.w = width;
@@ -50,22 +52,40 @@ int drawGameRect(SDL_Surface* display, gameRect object)
 	return 1;
 }
 
+// Draw array of bars
 
 // Create new bar
-int createNewBar(gameRect **array, int i)
+int createNewBar(gameRect *array, int value )
 {
 	int i;
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
-		
+		if(array[i].exist != 1)
+		{
+			float y= 240.0f;
+			array[i] = createGameRect( 631.0f, y, 7, SCREEN_HEIGHT - (int)y, 255, 255, 255);
+			return 1;
+		}	
 	}
+	return 0;
 }
 
 
 // Update Array of bars
-int updateArrayOfBars(gameRect **array)
+int updateArrayOfBars(gameRect *array, float ftime)
 {
-
+	int i;
+	for( i = 0; i < ARRAY_SIZE; i++ )
+	{
+		if(array[i].exist == 1)
+		{
+			array[i].x -= MOVE_SPEED * ftime / 2;
+			if ( (array[i].x + array[i].rect.w) < 0 )
+			{
+				array[i].exist = 0;
+			}
+		}
+	}
 }
 
 // Main
@@ -104,16 +124,8 @@ int main(int argc, char* args[])
 	// Initialize Player
 	gameRect player = createGameRect(35.0f, 35.0f, BOX_WIDTH, BOX_HEIGHT, 0, 0, 255);
 	
-	float x = 320.0f;
-	float y = 240.0f;
-	gameRect bar1 = createGameRect(x, y, 100, SCREEN_HEIGHT - (int)y, 255, 255, 255);
-
 	gameRect rects[80];
-	int r,i;
-	for(i=0;i<80;i++)
-	{
-		rects[i]=createGameRect(8*i,i,8,8*i,100,100,100);
-	}
+
 	// Game loop
 	while(1)
 	{
@@ -162,11 +174,6 @@ int main(int argc, char* args[])
 		// Draw Player
 		if(drawGameRect(display, player) == 0) break;
 		// Draw bar1
-		int i;
-		for( i=0; i<80 ;i++){
-		drawGameRect(display, rects[i]);	
-		}
-		if(drawGameRect(display, bar1) == 0) break;
 	
 		// Update Display
 		SDL_Flip(display);
