@@ -15,8 +15,22 @@ typedef struct
 }gameRect;
 
 
+// Constructor for gameRect
+gameRect createGameRect(float x, float y, int width, int height, int red, int green, int blue)
+{
+	gameRect object;
+	object.x = x;
+	object.y = y;
+	object.rect.w = width;
+	object.rect.h = height;
+	object.red = red;
+	object.green = green;
+	object.blue = blue;
+	return object;
+}
+
+
 // Draw Game Rectangle
-// Takes SDL_Surface* and struct gameRect
 int drawGameRect(SDL_Surface* display, gameRect object)
 {
 	// Update Player.rect
@@ -34,6 +48,10 @@ int drawGameRect(SDL_Surface* display, gameRect object)
 	}
 	return 1;
 }
+
+
+// Hanlde User Input
+
 
 // Main
 int main(int argc, char* args[])
@@ -69,14 +87,11 @@ int main(int argc, char* args[])
 	SDL_Event event;
 
 	// Initialize Player
-	gameRect player;
-	player.x = 35.0f;
-	player.y = 35.0f;
-	player.red = 0;
-	player.green = 0;
-	player.blue = 255;
-	player.rect.h = BOX_HEIGHT;
-	player.rect.w = BOX_WIDTH;
+	gameRect player = createGameRect(35.0f, 35.0f, BOX_WIDTH, BOX_HEIGHT, 0, 0, 255);
+	
+	float x = 320.0f;
+	float y = 240.0f;
+	gameRect bar1 = createGameRect(x, y, 100, SCREEN_HEIGHT - (int)y, 255, 255, 255);
 
 	// Game loop
 	while(1)
@@ -101,15 +116,15 @@ int main(int argc, char* args[])
 		// Handle input
 		if ( keys[SDLK_LEFT] && (player.x > 5.0f) )
 			player.x -= MOVE_SPEED * ftime;
-		if (keys[SDLK_RIGHT] && (player.x + BOX_WIDTH < SCREEN_WIDTH - 5.0f) )
+		if (keys[SDLK_RIGHT] && (player.x + player.rect.w < SCREEN_WIDTH - 5.0f) )
 			player.x += MOVE_SPEED * ftime;
-		if (keys[SDLK_DOWN] && (player.y + BOX_HEIGHT < SCREEN_HEIGHT - 5.0f) )
+		if (keys[SDLK_DOWN] && (player.y + player.rect.h < SCREEN_HEIGHT - 5.0f) )
 			player.y += MOVE_SPEED * ftime;
 		if (keys[SDLK_UP] && (player.y > 5.0f) )
 			player.y -= MOVE_SPEED * ftime;
 	
 		// Gravity Impact
-		if ( player.y + BOX_HEIGHT < SCREEN_HEIGHT - 5.0f )
+		if ( player.y + player.rect.h < SCREEN_HEIGHT - 5.0f )
 			player.y += MOVE_SPEED * ftime / 2;
 	
 		// Clear the screen
@@ -123,11 +138,10 @@ int main(int argc, char* args[])
 		}
 
 		// Draw Player
-		if(drawGameRect(display, player) == 0)
-		{
-			break;
-		}
-
+		if(drawGameRect(display, player) == 0) break;
+		// Draw bar1
+		if(drawGameRect(display, bar1) == 0) break;
+	
 		// Update Display
 		SDL_Flip(display);
 
