@@ -13,6 +13,7 @@
 Sint16 stream[2][MUSBUFFER*2*2];
 int len=MUSBUFFER*2*2, which=0;
 
+// Struct to contain the Game's Rectangle Objects
 typedef struct
 {
 	int exist;
@@ -42,35 +43,40 @@ gameRect createGameRect(float x, float y, int width, int height, int red, int gr
 // Collision Detection
 int collisionDetection(gameRect player, gameRect* array)
 {
-	
 	int c;
+	
+	// Initialize player left right top bottom
 	int pl = (int)player.x,
 	    pr = (int)player.x + player.rect.w,
 	    pt = (int)player.y,
 	    pb = (int)player.y + player.rect.h;
-	int bl,br,bt,bb;
-	int ver,hor;
 	
-	for(c=0;c<ARRAY_SIZE;c++)
+	// Declare bar left right top bottom
+	int bl,br,bt,bb;
+	
+	for( c = 0; c < ARRAY_SIZE; c++ )
 	{
-		ver=0;
-		hor=0;
-		if(array[c].exist==1)
+		if( array[c].exist == 1 )
 		{
+			// Set bar left right top bottom
 			bl = (int)array[c].x;
 			br = (int)array[c].x + array[c].rect.w;
 			bt = (int)array[c].y;
 			bb = (int)array[c].y + array[c].rect.h;
+
+			// Check for collision
 			if( ( (pl < bl) && (pr > bl) ) || ( (pl < br) && (pr > br) ) )
 			{	
 				if( ( (pt < bb) && (pb > bb) ) || ( (pt < bt) && (pb > bt) ) || ((pt > bt) && (pb < bb) ) )
 				{
+					// Return 1 for collision found
 					return 1;
 				}
 			}
 		
 		}	
 	}
+	// No collision detected, return 0
 	return 0;
 }
 
@@ -98,10 +104,13 @@ int drawGameRect(SDL_Surface* display, gameRect object)
 int drawGameRectArray(SDL_Surface* display, gameRect *array)
 {
 	int i;
+	
+	// For every Game Rectangle object that exists
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 1)
 		{
+			// Call draw Game Rectangle
 			if(drawGameRect(display, array[i]) == 0)
 				return 0;
 		}
@@ -114,22 +123,30 @@ int createNewBar(gameRect *array, int y, int value )
 {
 	int i, j = 0;
 	
+	// If bar is too low push it back up
 	if( y > 400 )
 		y = 370;
+	// If bar is too high, push it back down
 	if( y < 150 )
 		y = 180; 
+	
+	// Normalize difference value
 	if( value > 20 )
 		value = 20;
 	if( value < -20 )
 		value = -20;
+
+	// For all game Rectangle Objects that exist
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 0)
 		{
+			// Create bottom bar
 			if( j == 0)
 			{
 				array[i] = createGameRect( 630.0f, (float)y + value, 15, SCREEN_HEIGHT - (y + value), rand() % 255, rand() % 255, rand() % 255);
 				j++;
+			// Create top bar
 			} else {
 				array[i] = createGameRect( 630.0f, 0.0f, 15, y + value - 125, rand() % 255, rand() % 255, rand() % 255);
 				return y + value;
@@ -144,11 +161,17 @@ int createNewBar(gameRect *array, int y, int value )
 int updateArrayOfBars(gameRect *array, float ftime)
 {
 	int i;
+
+	// For every game Rectangle Object that exists
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 1)
 		{
+			// Move left at half the player speed
 			array[i].x -= MOVE_SPEED * ftime / 2;
+
+			// If game Rectangle Object has gone off screen
+			// Set existence to 0
 			if ( (array[i].x + array[i].rect.w) < 0 )
 			{
 				array[i].exist = 0;
@@ -162,6 +185,8 @@ int updateArrayOfBars(gameRect *array, float ftime)
 void initArrayOfBars(gameRect *array)
 {
 	int i;
+
+	// Set every object in array's existence to 0
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		array[i].exist = 0;
@@ -177,23 +202,29 @@ void postmix(void *udata, Uint8 *_stream, int _len)
 }
 
 // getHeight returns music data
+// returns average of all positive integers in song buffer
 int getheight() 
 {
 	Sint16 *buf;
 	buf = stream[which];
-	int height = 1;
-	int x;//position
-	int c = 1;//count
-	for(x=0;x<MUSBUFFER;x++)
+	int height = 0;
+	int c = 0;
+	int x;
+
+	for( x = 0; x < MUSBUFFER; x++ )
 	{
-		if (buf[x] > 0)
+		if ( buf[x] > 0 )
 		{
 			height += buf[x];
 			c++;
 		}
 	}
-	height = (height/c);
-	return height;	
+	
+	if( (height == 0) || (c == 0) )
+	{
+		return 1;
+	}
+	return ( height / c );	
 }
 
 
@@ -282,7 +313,10 @@ int main(int argc, char* argv[])
 	gameRect rects[ARRAY_SIZE];
 	initArrayOfBars(rects);
 
+	// Counter to wait for bars to advance before creating new bar
 	float counter = 0;
+
+	// Previously created bars y location. Start location at 240
 	int yPrev = 240;
 
 	// Start The Song
