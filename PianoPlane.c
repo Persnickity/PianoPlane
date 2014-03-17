@@ -285,6 +285,7 @@ int main(int argc, char* argv[])
 
 	// Start The Song
 	startMusic(argv[1]);
+	SDL_Delay(2000);
 
 	// Game loop
 	while(1)
@@ -308,7 +309,7 @@ int main(int argc, char* argv[])
 		// Create new bar
 		if(counter > 15.0f)
 		{
-			if( ( yPrev = createNewBar(rects, yPrev, 5) ) == 0)
+			if( ( yPrev = createNewBar(rects, yPrev, getheight() ) ) == 0)
 			{
 				fprintf(stderr, "Create New Bars Error\n");
 				break;
