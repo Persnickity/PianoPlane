@@ -4,7 +4,7 @@
 #define MOVE_SPEED 200.0f
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
-#define ARRAY_SIZE 80
+#define ARRAY_SIZE 100
 #define BOX_WIDTH 30
 #define BOX_HEIGHT 30
 
@@ -70,14 +70,20 @@ int drawGameRectArray(SDL_Surface* display, gameRect *array)
 // Create new bar
 int createNewBar(gameRect *array, int value )
 {
-	int i;
+	int i, j = 0;
+	float y = 240.0f;
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
-		if(array[i].exist != 1)
+		if(array[i].exist == 0)
 		{
-			float y= 240.0f;
-			array[i] = createGameRect( 631.0f, y, 7, SCREEN_HEIGHT - (int)y, 255, 255, 255);
-			return 1;
+			if( j == 0)
+			{
+				array[i] = createGameRect( 631.0f, y, 10, SCREEN_HEIGHT - (int)y, rand() % 255, rand() % 255, rand() % 255);
+				j++;
+			} else {
+				array[i] = createGameRect( 631.0f, 0, 10, (int)y - 100, rand() % 255, rand() % 255, rand() % 255);
+				return 1;
+			}
 		}	
 	}
 	return 0;
@@ -98,6 +104,17 @@ int updateArrayOfBars(gameRect *array, float ftime)
 				array[i].exist = 0;
 			}
 		}
+	}
+	return 1;
+}
+
+// Init Array
+void initArrayOfBars(gameRect *array)
+{
+	int i;
+	for( i = 0; i < ARRAY_SIZE; i++ )
+	{
+		array[i].exist = 0;
 	}
 }
 
@@ -137,7 +154,11 @@ int main(int argc, char* args[])
 	// Initialize Player
 	gameRect player = createGameRect(35.0f, 35.0f, BOX_WIDTH, BOX_HEIGHT, 0, 0, 255);
 	
-	gameRect rects[80];
+	// Initialize rects
+	gameRect rects[ARRAY_SIZE];
+	initArrayOfBars(rects);
+
+	float counter = 0;
 
 	// Game loop
 	while(1)
@@ -158,6 +179,15 @@ int main(int argc, char* args[])
 			}
 		}
 
+		// Create new bar
+		if(counter > 15.0f)
+		{
+			if(createNewBar(rects, 1) == 0)
+			{
+				fprintf(stderr, "Create New Bars Error\n");
+			}
+			counter = 0;
+		}
 
 		// Handle input
 		if ( keys[SDLK_LEFT] && (player.x > 5.0f) )
@@ -172,7 +202,14 @@ int main(int argc, char* args[])
 		// Gravity Impact
 		if ( player.y + player.rect.h < SCREEN_HEIGHT - 5.0f )
 			player.y += MOVE_SPEED * ftime / 2;
-	
+
+		// Update Array
+		if ( updateArrayOfBars(rects, ftime) == 0 )
+		{
+			fprintf(stderr, "Update Array of Bars Failed \n");
+			break;
+		}
+		
 		// Clear the screen
 		if (SDL_FillRect(display, 
 				 NULL,
@@ -186,10 +223,15 @@ int main(int argc, char* args[])
 	
 		// Draw Player
 		if(drawGameRect(display, player) == 0) break;
-		// Draw bar1
+
+		// Draw Array
+		if(drawGameRectArray(display, rects) == 0) break;
 	
 		// Update Display
 		SDL_Flip(display);
+
+		// Increment counter
+		counter+= MOVE_SPEED * ftime / 2;
 
 	}
 
