@@ -53,6 +53,19 @@ int drawGameRect(SDL_Surface* display, gameRect object)
 }
 
 // Draw array of bars
+int drawGameRectArray(SDL_Surface* display, gameRect *array)
+{
+	int i;
+	for( i = 0; i < ARRAY_SIZE; i++ )
+	{
+		if(array[i].exist == 1)
+		{
+			if(drawGameRect(display, array[i]) == 0)
+				return 0;
+		}
+	}
+	return 1;
+} 
 
 // Create new bar
 int createNewBar(gameRect *array, int value )
