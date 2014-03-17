@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 		// Create new bar
 		if(counter > 20.0f)
 		{
-			if( ( yPrev = createNewBar(rects, yPrev, ((getheight() / -300) + 12) ) ) == 0)
+			if( ( yPrev = createNewBar(rects, yPrev, ( ( ( getheight() / -300 ) + 12) * 3) ) ) == 0)
 			{
 				fprintf(stderr, "Create New Bars Error\n");
 				break;
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 	
 		// Gravity Impact
 		if ( player.y + player.rect.h < SCREEN_HEIGHT - 5.0f )
-			player.y += MOVE_SPEED * ftime / 2;
+			player.y += MOVE_SPEED * ftime / 3;
 
 		// Update Array
 		if ( updateArrayOfBars(rects, ftime) == 0 )
