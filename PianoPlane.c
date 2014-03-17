@@ -56,9 +56,11 @@ int collisionDetection(gameRect player, gameRect* array)
 			br = (int)array[c].x + array[c].rect.w;
 			bt = (int)array[c].y;
 			bb = (int)array[c].y + array[c].rect.h;
+			if( (pb < bt) && (pt > bb) && (pr < pl ) && (pl > br) )
+				return 1;
 			if( ( (pl < bl) && (pr > bl) ) || ( (pl < br) && (pr > br) ) )
 			{	
-				if( ( (pt < bb) && (pb > bb) ) || ( (pt < bt) && (pb > bt) ) )
+				if( ( (pt < bb) && (pb > bb) ) || ( (pt < bt) && (pb > bt) ) || ((pt > bt) && (pb < bb) ) )
 				{
 					return 1;
 				}
