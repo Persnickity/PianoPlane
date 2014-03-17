@@ -1,1 +1,5 @@
-This is an empty readme file
+Steps to play game:
+
+1) cmd-line~$ make song=<A/Path/To/A/MP3>
+2) Dont lose
+3) cmd-line~$ make clean
