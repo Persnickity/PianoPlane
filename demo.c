@@ -10,6 +10,7 @@
 /* Includes */
 #include <time.h>
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include <stdlib.h>
 
 /* Types */
@@ -133,6 +134,7 @@ void demo_end_time()
 /* Main */
 int main(int argn,char **argv)
 {
+
 	SDL_Event ev;
 	int active;
 	/* Initialize SDL */
