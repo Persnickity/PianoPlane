@@ -19,11 +19,6 @@ void postmix(void *udata, Uint8 *_stream, int _len)
         memcpy(stream[(which+1)%2],_stream,len);
 	which = (which + 1) % 2;
 }
-/*
-	Sint16 stream[2][MUSBUFFER*2*2];
-	#define MUSBUFFLEN = MUSBUFFER*2*2
-	int which=0;
-*/
 
 int getheight() 
 {
@@ -44,32 +39,14 @@ int getheight()
 	return height;	
 }
 
-/*void CleanUp(int exitcode)
-{
-        if( Mix_PlayingMusic() ) {
-                Mix_FadeOutMusic(1500);
-                SDL_Delay(1500);
-        }
-        if ( music ) {
-                Mix_FreeMusic(music);
-                music = NULL;
-        }
-        Mix_CloseAudio();
-        SDL_Quit();
-        exit(exitcode);
-}
-*/
-
 void startMusic(char* song)
 {
-	printf("startMusic\n");
-	Mix_Music *music = NULL;
-
 	// aud = audio 
 	int aud_rate;
 	Uint16 aud_format;
 	int aud_channels;
 	int aud_volume = MIX_MAX_VOLUME;
+	Mix_Music *music = NULL;
 
 	// Initialize 
 	// Hard coded to stereo settings 
@@ -81,14 +58,12 @@ void startMusic(char* song)
 	if ( SDL_Init(SDL_INIT_AUDIO < 0 )) 
 	{
 		fprintf(stderr, "Couldn't initialize the SDL, EC: %s\n",SDL_GetError());
-	//	return(255);
 	}
 
 	// Initialize audio device 
 	if (Mix_OpenAudio(aud_rate, aud_format, aud_channels, MUSBUFFER) < 0)
 	{
 		fprintf(stderr, "Couldn't open audio, EC: %s\n", SDL_GetError());
-	//	return (2);
 	}
 	// set up the post mix processor 
 	Mix_SetPostMix(postmix,song);
@@ -101,73 +76,15 @@ void startMusic(char* song)
 
 	// Play and exit 
 	Mix_FadeInMusic(music, -1, 1000);
-	int tmp;
 	while ( Mix_PlayingMusic() || Mix_PausedMusic() ) 
 	{
-		tmp = getheight();
 		SDL_Delay(100);
 	}
-
-//	CleanUp(0);
 
 }
 
 int main(int argc, char *argv[])
 {
 	startMusic(argv[1]);
-	fflush(stdout);
-	fflush(stdout);
-	int tmp = getheight();
 	return 0;
 }
-/*
-
-int main(int argc, char *argv[])
-{
-	Mix_Music *music = NULL;
-	int aud_rate;
-	Uint16 aud_format;
-	int aud_channels;
-	int aud_buffers;
-	int aud_volume = MIX_MAX_VOLUME;
-
-	aud_rate = 22050;
-	aud_format = AUDIO_S16;
-	aud_channels = 2;
-
-	if ( SDL_Init(SDL_INIT_AUDIO < 0 )) 
-	{
-		fprintf(stderr, "Couldn't initialize the SDL, EC: %s\n",SDL_GetError());
-		return(255);
-	}
-
-	if (Mix_OpenAudio(aud_rate, aud_format, aud_channels, MUSBUFFER) < 0)
-	{
-		fprintf(stderr, "Couldn't open audio, EC: %s\n", SDL_GetError());
-		return (2);
-	}
-	Mix_SetPostMix(postmix,argv[1]);
-
-	Mix_VolumeMusic(aud_volume);
-
-	music = Mix_LoadMUS(argv[1]);
-
-	Mix_FadeInMusic(music, -1, 1000);
-	int tmp;
-	printf("got out of Mix_PlayMusic\n");
-
-	while ( Mix_PlayingMusic() || Mix_PausedMusic()) 
-	{
-		SDL_Delay(100);
-		fflush(stdout);
-		fflush(stdout);
-		tmp = getheight();
-		SDL_Delay(100);
-		printf("Height : %d\n",tmp);
-	}
-
-	//CleanUp(0);
-	
-	return 0;
-}
-*/
