@@ -4,6 +4,7 @@
 #define MOVE_SPEED 200.0f
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
+#define ARRAY_SIZE 80
 #define BOX_WIDTH 30
 #define BOX_HEIGHT 30
 
@@ -50,8 +51,22 @@ int drawGameRect(SDL_Surface* display, gameRect object)
 }
 
 
-// Hanlde User Input
+// Create new bar
+int createNewBar(gameRect **array, int i)
+{
+	int i;
+	for( i = 0; i < ARRAY_SIZE; i++ )
+	{
+		
+	}
+}
 
+
+// Update Array of bars
+int updateArrayOfBars(gameRect **array)
+{
+
+}
 
 // Main
 int main(int argc, char* args[])
