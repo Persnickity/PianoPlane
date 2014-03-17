@@ -24,12 +24,49 @@ gameRect createGameRect(float x, float y, int width, int height, int red, int gr
 	object.exist = 1;
 	object.x = x;
 	object.y = y;
+	object.rect.x = (int)x;
+	object.rect.y = (int)y;
 	object.rect.w = width;
 	object.rect.h = height;
 	object.red = red;
 	object.green = green;
 	object.blue = blue;
 	return object;
+}
+
+// Collision Detection
+int collisionDetection(gameRect player, gameRect* array)
+{
+	
+	int c;
+	int pl = (int)player.x,
+	    pr = (int)player.x + player.rect.w,
+	    pt = (int)player.y,
+	    pb = (int)player.y + player.rect.h;
+	int bl,br,bt,bb;
+	int ver,hor;
+	
+	for(c=0;c<ARRAY_SIZE;c++)
+	{
+		ver=0;
+		hor=0;
+		if(array[c].exist==1)
+		{
+			bl = (int)array[c].x;
+			br = (int)array[c].x + array[c].rect.w;
+			bt = (int)array[c].y;
+			bb = (int)array[c].y + array[c].rect.h;
+			if( ( (pl < bl) && (pr > bl) ) || ( (pl < br) && (pr > br) ) )
+			{	
+				if( ( (pt < bb) && (pb > bb) ) || ( (pt < bt) && (pb > bt) ) )
+				{
+					return 1;
+				}
+			}
+		
+		}	
+	}
+	return 0;
 }
 
 
@@ -68,21 +105,25 @@ int drawGameRectArray(SDL_Surface* display, gameRect *array)
 } 
 
 // Create new bar
-int createNewBar(gameRect *array, int value )
+int createNewBar(gameRect *array, int y, int value )
 {
 	int i, j = 0;
-	float y = 240.0f;
+	
+	if( y > 400 )
+		y = 400;
+	if( y < 150 )
+		y = 150; 
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 0)
 		{
 			if( j == 0)
 			{
-				array[i] = createGameRect( 631.0f, y, 10, SCREEN_HEIGHT - (int)y, rand() % 255, rand() % 255, rand() % 255);
+				array[i] = createGameRect( 630.0f, (float)y + value, 10, SCREEN_HEIGHT - (y + value), rand() % 255, rand() % 255, rand() % 255);
 				j++;
 			} else {
-				array[i] = createGameRect( 631.0f, 0, 10, (int)y - 100, rand() % 255, rand() % 255, rand() % 255);
-				return 1;
+				array[i] = createGameRect( 630.0f, 0.0f, 10, y + value - 100, rand() % 255, rand() % 255, rand() % 255);
+				return y + value;
 			}
 		}	
 	}
@@ -159,6 +200,7 @@ int main(int argc, char* args[])
 	initArrayOfBars(rects);
 
 	float counter = 0;
+	int yPrev = 240;
 
 	// Game loop
 	while(1)
@@ -182,9 +224,10 @@ int main(int argc, char* args[])
 		// Create new bar
 		if(counter > 15.0f)
 		{
-			if(createNewBar(rects, 1) == 0)
+			if( ( yPrev = createNewBar(rects, yPrev, 5) ) == 0)
 			{
 				fprintf(stderr, "Create New Bars Error\n");
+				break;
 			}
 			counter = 0;
 		}
@@ -209,6 +252,9 @@ int main(int argc, char* args[])
 			fprintf(stderr, "Update Array of Bars Failed \n");
 			break;
 		}
+
+		// Collision Detection
+		if (collisionDetection(player, rects) == 1) break;
 		
 		// Clear the screen
 		if (SDL_FillRect(display, 
