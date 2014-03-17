@@ -117,9 +117,9 @@ int createNewBar(gameRect *array, int y, int value )
 	int i, j = 0;
 	
 	if( y > 400 )
-		y = 400;
+		y = 370;
 	if( y < 150 )
-		y = 150; 
+		y = 180; 
 	if( value > 20 )
 		value = 20;
 	if( value < -20 )
@@ -320,7 +320,7 @@ int main(int argc, char* argv[])
 		// Create new bar
 		if(counter > 20.0f)
 		{
-			if( ( yPrev = createNewBar(rects, yPrev, ((getheight() / -300) + 15) ) ) == 0)
+			if( ( yPrev = createNewBar(rects, yPrev, ((getheight() / -300) + 12) ) ) == 0)
 			{
 				fprintf(stderr, "Create New Bars Error\n");
 				break;
