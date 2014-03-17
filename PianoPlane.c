@@ -4,7 +4,7 @@
 #define MOVE_SPEED 200.0f
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
-#define ARRAY_SIZE 80
+#define ARRAY_SIZE 100
 #define BOX_WIDTH 30
 #define BOX_HEIGHT 30
 
@@ -70,14 +70,20 @@ int drawGameRectArray(SDL_Surface* display, gameRect *array)
 // Create new bar
 int createNewBar(gameRect *array, int value )
 {
-	int i;
+	int i, j = 0;
+	float y = 240.0f;
 	for( i = 0; i < ARRAY_SIZE; i++ )
 	{
 		if(array[i].exist == 0)
 		{
-			float y= 240.0f;
-			array[i] = createGameRect( 631.0f, y, 7, SCREEN_HEIGHT - (int)y, 255, 255, 255);
-			return 1;
+			if( j == 0)
+			{
+				array[i] = createGameRect( 631.0f, y, 10, SCREEN_HEIGHT - (int)y, rand() % 255, rand() % 255, rand() % 255);
+				j++;
+			} else {
+				array[i] = createGameRect( 631.0f, 0, 10, (int)y - 100, rand() % 255, rand() % 255, rand() % 255);
+				return 1;
+			}
 		}	
 	}
 	return 0;
@@ -149,7 +155,7 @@ int main(int argc, char* args[])
 	gameRect player = createGameRect(35.0f, 35.0f, BOX_WIDTH, BOX_HEIGHT, 0, 0, 255);
 	
 	// Initialize rects
-	gameRect rects[80];
+	gameRect rects[ARRAY_SIZE];
 	initArrayOfBars(rects);
 
 	float counter = 0;
@@ -174,7 +180,7 @@ int main(int argc, char* args[])
 		}
 
 		// Create new bar
-		if(counter > 50.0f)
+		if(counter > 15.0f)
 		{
 			if(createNewBar(rects, 1) == 0)
 			{
