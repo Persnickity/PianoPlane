@@ -1,224 +1,115 @@
 /*
-	My shit dough
+	1st run
 */
-
-/* $Id$ */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#ifdef unix
-#include <unistd.h>
-#endif
-
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-#ifdef HAVE_SIGNAL_H
-#include <signal.h>
-#endif
-
+#define BUFFER 1024
 
 static int audio_open = 0;
 static Mix_Music *music = NULL;
-static int next_track = 0;
+Sint16 stream[2][BUFFER*2*2];
+int len = BUFFER*2*2;
+Sint16 *buf;
+
+void postmix(void *udata, Uint8 *_stream, int _len)
+{
+        memcpy(buf,_stream,len);
+}
+int barheight() 
+{	
+	int height = 0;
+	int x;//position
+	int c;//count
+	for(x=0;x<len;x++)
+	{
+		if (buf[x] > 0)
+		{
+			height += buf[x];
+			c++;
+		}
+	}
+	height = (height/c);
+	return height;	
+}
 
 void CleanUp(int exitcode)
 {
-	if( Mix_PlayingMusic() ) {
-		Mix_FadeOutMusic(1500);
-		SDL_Delay(1500);
-	}
-	if ( music ) {
-		Mix_FreeMusic(music);
-		music = NULL;
-	}
-	if ( audio_open ) {
-		Mix_CloseAudio();
-		audio_open = 0;
-	}
-	SDL_Quit();
-	exit(exitcode);
+        if( Mix_PlayingMusic() ) {
+                Mix_FadeOutMusic(1500);
+                SDL_Delay(1500);
+        }
+        if ( music ) {
+                Mix_FreeMusic(music);
+                music = NULL;
+        }
+        if ( audio_open ) {
+                Mix_CloseAudio();
+                audio_open = 0;
+        }
+        SDL_Quit();
+        exit(exitcode);
 }
-
-void Usage(char *argv0)
-{
-	fprintf(stderr, "Usage: %s [-i] [-l] [-8] [-r rate] [-c channels] [-b buffers] [-v N] [-rwops] <musicfile>\n", argv0);
-}
-
-void Menu(void)
-{
-	char buf[10];
-
-	printf("Available commands: (p)ause (r)esume (h)alt volume(v#) > ");
-	fflush(stdin);
-	if (scanf("%s",buf) == 1) {
-		switch(buf[0]){
-		case 'p': case 'P':
-			Mix_PauseMusic();
-			break;
-		case 'r': case 'R':
-			Mix_ResumeMusic();
-			break;
-		case 'h': case 'H':
-			Mix_HaltMusic();
-			break;
-		case 'v': case 'V':
-			Mix_VolumeMusic(atoi(buf+1));
-			break;
-		}
-	}
-
-	printf("Music playing: %s Paused: %s\n", Mix_PlayingMusic() ? "yes" : "no", 
-		   Mix_PausedMusic() ? "yes" : "no");
-}
-
-#ifdef HAVE_SIGNAL_H
-
-void IntHandler(int sig)
-{
-	switch (sig) {
-	        case SIGINT:
-			next_track++;
-			break;
-	}
-}
-
-#endif
 
 int main(int argc, char *argv[])
 {
-	SDL_RWops *rwfp = NULL;
-	int audio_rate;
-	Uint16 audio_format;
-	int audio_channels;
-	int audio_buffers;
-	int audio_volume = MIX_MAX_VOLUME;
-	int looping = 0;
-	int interactive = 0;
-	int rwops = 0;
-	int i = 1;
+	/* aud = audio */
+	int aud_rate;
+	Uint16 aud_format;
+	int aud_channels;
+	int aud_buffers;
+	int aud_volume = MIX_MAX_VOLUME;
 
-	/* Initialize variables */
-	audio_rate = 22050;
-	audio_format = AUDIO_S16;
-	audio_channels = 2;
-	audio_buffers = 1024;
+	/* Initialize */
+	/* Hard coded to stereo settings */
+	aud_rate = 22050;
+	aud_format = AUDIO_S16;
+	aud_channels = 2;
 
-	/* Check command line usage */
-/*	for ( i=1; argv[i] && (*argv[i] == '-'); ++i ) {
-		if ( (strcmp(argv[i], "-r") == 0) && argv[i+1] ) {
-			++i;
-			audio_rate = atoi(argv[i]);
-		} else
-		if ( strcmp(argv[i], "-m") == 0 ) {
-			audio_channels = 1;
-		} else
-		if ( (strcmp(argv[i], "-c") == 0) && argv[i+1] ) {
-			++i;
-			audio_channels = atoi(argv[i]);
-		} else
-		if ( (strcmp(argv[i], "-b") == 0) && argv[i+1] ) {
-			++i;
-			audio_buffers = atoi(argv[i]);
-		} else
-		if ( (strcmp(argv[i], "-v") == 0) && argv[i+1] ) {
-			++i;
-			audio_volume = atoi(argv[i]);
-		} else
-		if ( strcmp(argv[i], "-l") == 0 ) {
-			looping = -1;
-		} else
-		if ( strcmp(argv[i], "-i") == 0 ) {
-			interactive = 1;
-		} else
-		if ( strcmp(argv[i], "-8") == 0 ) {
-			audio_format = AUDIO_U8;
-		} else
-		if ( strcmp(argv[i], "-rwops") == 0 ) {
-			rwops = 1;
-		} else {
-			Usage(argv[0]);
-			return(1);
-		}
-	}
-
-	if ( ! argv[i] ) {
-		Usage(argv[0]);
-		return(1);
-	}
-
-	/* Initialize the SDL library */
-	if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
-		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+	/* Initialize SDL library */
+	if ( SDL_Init(SDL_INIT_AUDIO < 0 )) 
+	{
+		fprintf(stderr, "Couldn't initialize the SDL, EC: %s\n",SDL_GetError());
 		return(255);
 	}
 
-#ifdef HAVE_SIGNAL_H
-	signal(SIGINT, IntHandler);
-	signal(SIGTERM, CleanUp);
-#endif
-
-	/* Open the audio device */
-	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
-		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-		return(2);
+	/* Initialize audio device */
+	if (Mix_OpenAudio(aud_rate, aud_format, aud_channels, BUFFER) < 0)
+	{
+		fprintf(stderr, "Couldn't open audio, EC: %s\n", SDL_GetError());
+		return (2);
 	} else {
-		Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
-		printf("Opened audio at %d Hz %d bit %s (%s), %d bytes audio buffer\n", audio_rate,
-			(audio_format&0xFF),
-			(audio_channels > 2) ? "surround" : (audio_channels > 1) ? "stereo" : "mono", 
-			(audio_format&0x1000) ? "BE" : "LE",
-			audio_buffers );
+		Mix_QuerySpec(&aud_rate, &aud_format, &aud_channels);
+		printf("Opened audio successfully\n");
 	}
 	audio_open = 1;
-	/* Set the music volume */
-	Mix_VolumeMusic(audio_volume);
+	/* set up the post mix processor */
+	Mix_SetPostMix(postmix,argv[1]);
 
-	/* Set the external music player, if any */
-	Mix_SetMusicCMD(SDL_getenv("MUSIC_CMD"));
+	/* Set volume for music */
+	Mix_VolumeMusic(aud_volume);
 
-	while (argv[i]) {
-		next_track = 0;
-		music = Mix_LoadMUS(argv[i]);
+	/* Load music */
+	music = Mix_LoadMUS(argv[1]);
 
-		/* Load the requested music file */
-/*		if ( rwops ) {
-			rwfp = SDL_RWFromFile(argv[i], "rb");
-			music = Mix_LoadMUS_RW(rwfp);
-		} else {
-			music = Mix_LoadMUS(argv[i]);
-		}*/
-		if ( music == NULL ) {
-			fprintf(stderr, "Couldn't load %s: %s\n",
-				argv[i], SDL_GetError());
-			CleanUp(2);
+	while (music)
+	{
+		/* Play and exit */
+		Mix_PlayMusic(music, -1);
+		while ( Mix_PlayingMusic() || Mix_PausedMusic()) 
+		{
+			SDL_Delay(100);
 		}
-		
-		/* Play and then exit */
-		printf("Playing %s\n", argv[i]);
-		Mix_FadeInMusic(music,looping,2000);
-		while ( !next_track && (Mix_PlayingMusic() || Mix_PausedMusic()) ) {
-			if(interactive)
-				Menu();
-			else
-				SDL_Delay(100);
-		}
+	
 		Mix_FreeMusic(music);
-		if ( rwops ) {
-			SDL_RWclose(rwfp);
-		}
 		music = NULL;
-
-		/* If the user presses Ctrl-C more than once, exit. */
 		SDL_Delay(500);
-		if ( next_track > 1 ) break;
-		
-		i++;
 	}
 	CleanUp(0);
-
-	/* Not reached, but fixes compiler warnings */
+	
 	return 0;
 }
