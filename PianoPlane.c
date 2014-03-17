@@ -108,6 +108,12 @@ int main(int argc, char* args[])
 	float y = 240.0f;
 	gameRect bar1 = createGameRect(x, y, 100, SCREEN_HEIGHT - (int)y, 255, 255, 255);
 
+	gameRect rects[80];
+	int r,i;
+	for(i=0;i<80;i++)
+	{
+		rects[i]=createGameRect(8*i,i,8,8*i,100,100,100);
+	}
 	// Game loop
 	while(1)
 	{
@@ -152,9 +158,14 @@ int main(int argc, char* args[])
 			break;
 		}
 
+	
 		// Draw Player
 		if(drawGameRect(display, player) == 0) break;
 		// Draw bar1
+		int i;
+		for( i=0; i<80 ;i++){
+		drawGameRect(display, rects[i]);	
+		}
 		if(drawGameRect(display, bar1) == 0) break;
 	
 		// Update Display
